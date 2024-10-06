@@ -161,31 +161,41 @@ REFERENCES issued_status(issued_id)
 -- "978-1-60129-456-2', 'To Kill a Mockingbird', 'Classic', 6.00, 'yes', 'Harper Lee', 'J.B. Lippincott & Co.')"
 
 ```sql
-INSERT INTO books(isbn, book_title, category, rental_price, status, author, publisher)
-VALUES('978-1-60129-456-2', 'To Kill a Mockingbird', 'Classic', 6.00, 'yes', 'Harper Lee', 'J.B. Lippincott & Co.');
-SELECT * FROM books;
+INSERT INTO books
+    (isbn, book_title, category, rental_price, status, author, publisher)
+VALUES
+    ('978-1-60129-456-2', 'To Kill a Mockingbird', 'Classic', 6.00, 'yes', 'Harper Lee', 'J.B. Lippincott & Co.');
+-- To check
+SELECT * 
+FROM books;
 ```
-**Task 2: Update an Existing Member's Address**
+**Task 2: Retrieve All Books Issued by a Specific Employee **
+
+```sql
+-- Objective: Select all books issued by the employee with emp_id = 'E101'.
+SELECT *
+FROM issued_status
+WHERE issued_emp_id = 'E101';
+```
+
+**Task 3: Update an Existing Member's Address**
 
 ```sql
 UPDATE members
-SET member_address = '125 Oak St'
-WHERE member_id = 'C103';
+SET member_address = '345 Albama St'
+WHERE member_id = 'C118';
+-- To check update
+SELECT * 
+FROM members;
 ```
 
-**Task 3: Delete a Record from the Issued Status Table**
+**Task 4: Delete a Record from the Issued Status Table **
 -- Objective: Delete the record with issued_id = 'IS121' from the issued_status table.
 
 ```sql
 DELETE FROM issued_status
-WHERE   issued_id =   'IS121';
-```
+WHERE issued_id = 'IS121';
 
-**Task 4: Retrieve All Books Issued by a Specific Employee**
--- Objective: Select all books issued by the employee with emp_id = 'E101'.
-```sql
-SELECT * FROM issued_status
-WHERE issued_emp_id = 'E101'
 ```
 
 
@@ -193,13 +203,69 @@ WHERE issued_emp_id = 'E101'
 -- Objective: Use GROUP BY to find members who have issued more than one book.
 
 ```sql
-SELECT
-    issued_emp_id,
-    COUNT(*)
-FROM issued_status
-GROUP BY 1
-HAVING COUNT(*) > 1
+SELECT 
+    member_id, 
+    member_name
+FROM 
+    members
+WHERE 
+    member_id IN (
+        SELECT 
+            issued_member_id
+        FROM 
+            issued_status
+        GROUP BY 
+            issued_member_id
+        HAVING 
+            COUNT(*) > 1
+    );
+
 ```
+
+**Task 6: List Members (names & id) Who Have being Issued More Than One Books and the count of the books**
+
+```sql
+SELECT 
+    m.member_id, 
+    m.member_name, 
+    COUNT(*) AS issued_count
+FROM 
+    issued_status AS i
+JOIN 
+    members AS m 
+    ON i.issued_member_id = m.member_id
+GROUP BY 
+    m.member_id, m.member_name
+HAVING 
+    COUNT(*) > 1
+ORDER BY 
+    issued_count DESC;
+
+```
+
+
+**Task 7: List employee (names & id) Who Have Issued More Than One Book and the counts of books issued**
+
+```sql
+SELECT 
+    e.emp_id, 
+    e.emp_name, 
+    COUNT(*) AS issued_count
+FROM 
+    issued_status AS i
+JOIN 
+    employees AS e
+    ON i.issued_emp_id = e.emp_id
+GROUP BY 
+    e.emp_id, e.emp_name
+HAVING 
+    COUNT(*) > 1
+ORDER BY 
+    e.emp_id;
+
+```
+
+
 
 ### 3. CTAS (Create Table As Select)
 
