@@ -100,6 +100,55 @@ CREATE TABLE Return_Status
 	);
 	
 ```
+### 1b. Database Setup
+- **Creation of Foreign key constraint **
+  
+```sql
+
+--Foreign Key Constraint
+ALTER TABLE issued_status
+ADD CONSTRAINT fk_members
+FOREIGN KEY(issued_member_id)
+REFERENCES members(member_id)
+
+ALTER TABLE issued_status
+ADD CONSTRAINT fk_book
+FOREIGN KEY(issued_book_isbn)
+REFERENCES books(isbn)
+
+ALTER TABLE issued_status
+ADD CONSTRAINT fk_employees
+FOREIGN KEY(issued_emp_id)
+REFERENCES employees(emp_id)
+
+
+ALTER TABLE employees
+ADD CONSTRAINT fk_branch
+FOREIGN KEY(branch_id)
+REFERENCES branch(branch_id)
+
+ALTER TABLE return_status
+ADD CONSTRAINT fk_issued_status
+FOREIGN KEY(issued_id)
+REFERENCES issued_status(issued_id)-- this constraint return error because issued_id in both return_status and issued_status are not consistent
+
+SELECT issued_id
+FROM dbo.return_status
+WHERE issued_id NOT IN (SELECT issued_id FROM dbo.issued_status);-- this to check for the inconsistent records
+
+--To resolve this error, delete the 3 inconsistent records
+
+-- Delete inconsistent records from return_status
+DELETE FROM return_status
+WHERE issued_id IN ('IS101', 'IS105', 'IS103');
+
+--Rerun the  foreign key constraint code 
+ALTER TABLE return_status
+ADD CONSTRAINT fk_issued_status
+FOREIGN KEY(issued_id)
+REFERENCES issued_status(issued_id)
+
+```
 
 ### 2. CRUD Operations
 
